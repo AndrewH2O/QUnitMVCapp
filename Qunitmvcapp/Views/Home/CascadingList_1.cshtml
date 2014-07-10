@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "CascadingList";
+}
+
+
+@{ Html.EnableUnobtrusiveJavaScript(true); }
+
+<script type="text/javascript">
+
+    var cityCount = 0;
+
+
+    $(document).ready(function () {
+        getCountry();
+
+        $('#CountriesID').change(function () {
+            getCity($('#CountriesID').val());
+        });
+    });
+
+    function getCountry() {
+        var url = '@Url.Content("~/Home/CountryList")/';
+
+        $.getJSON(url, function (data) {
+            var items = "<option>Select a Country</option>";
+            $.each(data, function (i, country) {
+                if (country.Value.indexOf("\'") > -1) {
+                    s = country.Value + " " + country.Text;
+                    alert(s + ": Country.Value cannot contain \'")
+                }
+                items += "<option value='" + country.Value + "'>" + country.Text + "</option>";
+            });
+            $('#CountriesID').html(items);
+        });
+    }
+
+    function getCity(countryId) {
+        var url = '@Url.Content("~/Home/CityList")/' + countryId;
+
+        $.getJSON(url, function (data) {
+            var items = '<option>Select a City</option>';
+            $.each(data, function (i, city) {
+                items += "<option value='" + city.Value + "'>" + city.Text + "</option>";
+                cityCount++;
+            });
+            $('#CitiesID').html(items);
+        });
+    }
+
+    
+    
+    @*function getCity() {
+        var url = '@Url.Content("~/Home/CityList")/' + $('#CountriesID').val();
+
+        $.getJSON(url, function (data) {
+            var items = '<option>Select a City</option>';
+            $.each(data, function (i, city) {
+                items += "<option value='" + city.Value + "'>" + city.Text + "</option>";
+            });
+            $('#CitiesID').html(items);
+        });
+    }*@
+
+
+</script>
+
+<h2>Country</h2>
+<div id="CountriesDivID">
+    <label for="Countries">Countries</label>
+    <select id="CountriesID" name="Countries" ></select>
+</div>
+<div id="CitiesDivID">
+    <label for="Cities">Cities</label>
+    <select id="CitiesID" name="Cities"></select>   
+</div>

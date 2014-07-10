@@ -1,0 +1,88 @@
+﻿@*Based on 
+http://blogs.msdn.com/b/pranab/archive/2013/06/20/unit-testing-javascript-jquery-in-asp-net-mvc-project-using-qunit.aspx*@
+
+@{
+    ViewBag.Title = "CascadingList";
+}
+
+
+@{ Html.EnableUnobtrusiveJavaScript(true); }
+
+<script type="text/javascript">
+
+    var cityCount = 0;
+    
+    $(document).ready(function () {
+        getCountry();
+
+        $('#CountriesID').change(function () {
+
+            //getCity($('#CountriesID').val());
+            getCity('AU');
+
+            console.log("CityCount " + cityCount);
+
+        });
+    });
+
+    function getCountry() {
+        var url = '@Url.Content("~/Home/CountryList")/';
+
+        $.getJSON(url, function (data) {
+            var items = "<option>Select a Country</option>";
+            $.each(data, function (i, country) {
+                if (country.Value.indexOf("\'") > -1) {
+                    s = country.Value + " " + country.Text;
+                    alert(s + ": Country.Value cannot contain \'")
+                }
+                items += "<option value='" + country.Value + "'>" + country.Text + "</option>";
+            });
+            $('#CountriesID').html(items);
+        });
+    }
+
+    
+    function getCity(countryId) {
+        var url = '@Url.Content("~/Home/CityList")/' + countryId;
+
+        $.getJSON(url, function (data) {
+            var items = '<option>Select a City</option>';
+            $.each(data, function (i, city) {
+                items += "<option value='" + city.Value + "'>" + city.Text + "</option>";
+                cityCount++;
+            });
+            $('#CitiesID').html(items);
+        });
+    }
+      
+    
+    asyncTest("Perform Country onchange", function () {
+        expect(1);
+        $('#CountriesID').trigger("change");
+        setTimeout(start(), 1000);
+        equals(1, 1, "start tests after delay");
+    });
+
+    test("Perform Country onchange", function () {
+        $('#CountriesID').trigger("change");
+        equals(cityCount, 3, "The number of cities should be 3");
+    });
+
+
+</script>
+
+<h2>Country</h2>
+<div id="CountriesDivID">
+    <label for="Countries">Countries</label>
+    <select id="CountriesID" name="Countries" ></select>
+</div>
+<div id="CitiesDivID">
+    <label for="Cities">Cities</label>
+    <select id="CitiesID" name="Cities"></select>   
+</div>
+
+<div>
+    <h1 id="qunit-header">QUnit example</h1>
+    <ol id="qunit-tests"></ol>
+</div>
+
